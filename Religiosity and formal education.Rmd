@@ -1,0 +1,121 @@
+<!-- Make sure that the knitr package is installed and loaded. -->
+<!-- For more info on the package options see http://yihui.name/knitr/options -->
+
+### Religiosity and formal education
+
+<!-- The code required to load the data-->
+```{r echo=FALSE}
+load(url("http://bit.ly/dasi_gss_data"))
+```
+
+
+### Introduction:
+
+In this report, we try to answer the question whether there is a connection between someone's highest level of formal education and their religiosity (as measured by how often they attend religious services)
+It has often been stated that having a higher formal education correlates with lower church attendance. Using the GSS (General Social Survey) data, we can assert the correctness of this affirmation.
+
+
+### Data:
+
+The General Social Survey (GSS) is a sociological survey used to collect data on demographic characteristics and attitudes of residents of the United States. The survey is conducted face-to-face with an in-person interview by the National Opinion Research Center at the University of Chicago, of adults (18+) in randomly selected households. The survey was conducted every year from 1972 to 1994 (except in 1979, 1981, and 1992). Since 1994, it has been conducted every other year. The survey takes about 90 minutes to administer. (Source: Wikipedia)
+
+The cases in this study are adult (18+) residents  of the United States. Two variables are of interest in this study, namely  degree - respondents highest degree - a categorical variable ( less than high school, high school, junior college, bachelor, graduate) and "attend" - how often does the respondent attend religious services, also a categorical variable, with values such as never, once a year, once a week, etc
+
+The GSS study is an observational study. The collection of the data did not directly interfere with the way the data arose. People were randomly selected for surveying, but there was no control group. Results of the survey were recorded, but not compared against a control group.
+
+The population of interest is the adult population of the United States. As the study is done on a representative random sample, the findings from the analysis can be generalized to the entire adult population of the US. Potential sources of bias at the collection of the data might include - non-response bias, if a non-random subsection of the respondents chose not to answer the survey, and conveniance bias, if people who were easy to sample were more likely to be included in the sample.
+
+Since the study is an observational study and not an experiment, causal links cannot be determined, just correlations (associations). To be able to determine causality, an experiment , a control group and a "treatment" is needed (for example, a double blind, placebo controlled experiment), which is not the case in this study.
+### Exploratory data analysis:
+
+```{r}
+plot(gss$attend ~ gss$degree)
+by(gss$attend, gss$degree, summary)
+```
+
+A plot showing the proportion of religious services attendance across each educational degree shows that the proportions are somewhat similar -  suggesting that there might be differences between attendance as formal degree changes, however, more precise measuments need to be performed in order to draw appropriate conclusions.
+
+### Inference:
+
+The null hypothesis is that there are no differences in the proportions of attendace  as formal education degree changes. In other words, religious service attendance is independent of the formal educational degree obtained. The alternative hypothesis is that the two variables are dependent of each other, there is a correspondence (however, causality still cannot be determined). We are going to choose a 5% significance level, and apply the chi-squared test of independence. 
+
+Conditions for the chi-square test:
+* Independence - sampled observations must be independent - fulfilled by the data collection method, according to GSS guidelines (random sample)
+* Number of cases is less than 10% of the population - GSS surveys about 55,000 respondents
+* Sample size - each cell has at least 5 expected cases (in fact, in our particular case we have way more than that in each cell)
+
+In the chi-square test, we are going to determine how different the expected values are from the observed values. If these differences are large, we can conclude that these deviations are unlikely to occur due to chance alone and therefore it might provide evidence for the alternative hypothesis.
+
+Based on the data above, we can proceed to clean and group the variables. If we eliminate the NA's and group attendance into two categories (for convenience) : those who attend less than once a week, and those who attend at least once a week, we get to the following table:
+
+            | Less than once a week | At least once a week | Totals
+-------------| ---------------------|-----------------------|---
+Lt High school   | 6234             |   3145| 9379
+High school      | 16371            |   7908|24279
+Junior college | 1774|836|2610
+Bachelor |4395|2379|6774
+Graduate |2074|1151|3225
+
+We now have two categorical variables, one of which has two levels, and the other one has 5 level. We are going to apply a hypothesis test only (no confidence interval), and since the expected size condition is met, no simulation is needed.
+
+Degrees of freedom df = 4 x 1 = 4, the test statistic is 26.29 , and the p value is
+```{r}
+chisq.test(data.frame(c(6234,16371,1774,4395,2074),c(3145,7908,836,2379,1151)))
+pchisq(26.29, df=4,lower.tail=FALSE)
+```
+Since no other methods are applicable we cannot compare whether the hypothesis test and the confidence interval agree.
+
+### Conclusion:
+
+Based on the p value of 2.764e-05 we can reject the null hypothesis at the 5% significance level. Therefore, we can conclude that the data does  present conclusive evidence that there is correspondence in the proportions of attendance as formal educational degree changes. At his significance level, religious service attendance does seem to depend on formal educational degree. The differences between observed and expected attendance in the sample can not be simply attributed to chance.
+
+Other possible areas of study might include taking into account the respondent's IQ instead of formal educational degree, as IQ tends to measure native intelligence, while formal education depends on a lot of factors, such as environmental factors, family background, social status and so on. Such studies have been done in the past (see referenced Wikipedia article). Admittedly however, introducing IQ measurement into the GSS might prove very difficult and possibly impractical.
+
+### References:
+
+Smith, Tom W., Michael Hout, and Peter V. Marsden. General Social Survey, 1972-2012 [Cumulative File]. ICPSR34802-v1. Storrs, CT: Roper Center for Public Opinion Research, University of Connecticut /Ann Arbor, MI: Inter-university Consortium for Political and Social Research [distributors], 2013-09-11. doi:10.3886/ICPSR34802.v1
+
+Persistent URL: http://doi.org/10.3886/ICPSR34802.v1
+
+
+Wikipedia: http://en.wikipedia.org/wiki/General_Social_Survey
+
+Wikipedia: http://en.wikipedia.org/wiki/Religiosity_and_intelligence
+
+
+
+
+### Appendix:
+```
+   year age         degree           attend
+1  1972  23       Bachelor      Once A Year
+2  1972  70 Lt High School       Every Week
+3  1972  48    High School     Once A Month
+4  1972  27       Bachelor             <NA>
+5  1972  61    High School             <NA>
+6  1972  26    High School      Once A Year
+7  1972  28    High School       Every Week
+8  1972  27       Bachelor             <NA>
+9  1972  21    High School Sevrl Times A Yr
+10 1972  30    High School More Thn Once Wk
+11 1972  30    High School       Every Week
+12 1972  56 Lt High School       Every Week
+13 1972  54 Lt High School       Every Week
+14 1972  49 Lt High School       Every Week
+15 1972  41 Lt High School More Thn Once Wk
+16 1972  54    High School     2-3X A Month
+17 1972  24    High School       Every Week
+18 1972  62 Lt High School       Every Week
+19 1972  46       Bachelor       Every Week
+20 1972  21    High School     2-3X A Month
+21 1972  57    High School     2-3X A Month
+22 1972  58    High School      Once A Year
+23 1972  21    High School   Lt Once A Year
+24 1972  26    High School             <NA>
+25 1972  71       Bachelor Sevrl Times A Yr
+26 1972  53    High School       Every Week
+27 1972  42    High School      Once A Year
+28 1972  42    High School      Once A Year
+29 1972  20    High School Sevrl Times A Yr
+30 1972  23 Lt High School       Every Week
+```
